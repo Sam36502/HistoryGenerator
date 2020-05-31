@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Application-Title: HistoryGenerator
+Application-Version: 1.0-SNAPSHOT
+Main-Class: ch.pearcenet.historygen.Main
+
