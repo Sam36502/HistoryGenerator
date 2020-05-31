@@ -7,19 +7,24 @@ import java.util.Random;
 
 public class World {
 
-    private static final int SEED_ISLAND_COUNT = 3;
+    private static final int SEED_ISLAND_COUNT = 5;
 
     // Display characters for province heights
-    private static Ansi HEIGHT_DEEP_SEA = Ansi.ansi().fg(Ansi.Color.BLUE).a("\u2588\u2588").reset();
-    private static Ansi HEIGHT_SHALLOW_SEA = Ansi.ansi().fg(Ansi.Color.CYAN).a("\u2588\u2588").reset();
-    private static Ansi HEIGHT_BEACH = Ansi.ansi().fg(Ansi.Color.YELLOW).a("\u2588\u2588").reset();
-    private static Ansi HEIGHT_HILL = Ansi.ansi().fg(Ansi.Color.GREEN).a("\u2588\u2588").reset();
-    private static Ansi HEIGHT_MOUNTAIN = Ansi.ansi().fg(Ansi.Color.WHITE).a("\u2588\u2588").reset();
+    private static final Ansi HEIGHT_DEEP_SEA = Ansi.ansi().fg(Ansi.Color.BLUE).a("\u2588\u2588").reset();
+    private static final Ansi HEIGHT_SHALLOW_SEA = Ansi.ansi().fg(Ansi.Color.CYAN).a("\u2588\u2588").reset();
+    private static final Ansi HEIGHT_BEACH = Ansi.ansi().fg(Ansi.Color.YELLOW).a("\u2588\u2588").reset();
+    private static final Ansi HEIGHT_HILL = Ansi.ansi().fg(Ansi.Color.GREEN).a("\u2588\u2588").reset();
+    private static final Ansi HEIGHT_MOUNTAIN = Ansi.ansi().fg(Ansi.Color.WHITE).a("\u2588\u2588").reset();
 
     /**
      * A grid of provinces that make up the map
      */
     private Province[][] map;
+
+    /**
+     * Random number sequence generator
+     */
+    private Random rand;
 
     /**
      * Generate a world with a random number seed
@@ -41,7 +46,7 @@ public class World {
         }
 
         // Random number generator with seed
-        Random rand = new Random(seed);
+        rand = new Random(seed);
 
         // Generate 'seed islands' to grow into full continents
         int[][] seeds = new int [SEED_ISLAND_COUNT][2];
@@ -49,11 +54,10 @@ public class World {
             seeds[i][0] = randIntInRange(rand, 0, longitude);
             seeds[i][1] = randIntInRange(rand, 0, latitude);
 
-            try {
-                map[seeds[i][0]][seeds[i][1]] = new Province("Mountain", 2, randIntInRange(rand, 0, 3));
-            } catch (InvalidProvinceException e) {
-                e.printStackTrace();
-            }
+            int size = randIntInRange(rand, 1, 5);
+
+            // Create surrounding land
+
         }
     }
 
