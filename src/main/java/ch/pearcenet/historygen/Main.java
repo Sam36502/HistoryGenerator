@@ -11,6 +11,8 @@ public class Main {
         AnsiConsole.systemInstall();
         Scanner input = new Scanner(System.in);
 
+        System.out.println("Did it work?: \u1090A");
+
         while (true) {
             System.out.print("Enter world seed: ");
             int seed = Integer.parseInt(input.nextLine());
