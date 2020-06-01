@@ -22,6 +22,7 @@ public class Language {
     private Alphabet alphabet;
 
     private HashMap<String, String> dictionary;
+    private HashMap<String, String> reverseDictionary;
 
     public Language(String alpha, long seed) throws InvalidAlphabetException {
         // Load english dictionary
@@ -43,18 +44,26 @@ public class Language {
 
         Random rand = new Random(seed);
         dictionary = new HashMap<>();
+        reverseDictionary = new HashMap<>();
 
         // Create a word for each english counterpart
         this.alphabet = Alphabet.getAlphabet(alpha);
         for (String engWord: englishDictionary) {
-            dictionary.put(engWord, newWord(rand));
+            String newWord = newWord(rand);
+
+            while (dictionary.containsKey(newWord) || reverseDictionary.containsKey(newWord)) {
+                newWord = newWord(rand);
+            }
+
+            dictionary.put(engWord, newWord);
+            reverseDictionary.put(newWord, engWord);
         }
 
     }
 
     private String newWord(Random rand) {
         String newWord = "";
-        int len = rand.nextInt(9)+1;
+        int len = rand.nextInt(9)+2;
 
         if (len % 2 != 0) {
             len--;
@@ -86,6 +95,49 @@ public class Language {
      * @return Text in this language
      */
     public String translateTo(String orig) {
+        // Remove any unnecessary characters
+        String charset = new String(alphabet.getConsonants()) + new String(alphabet.getVowels());
+        charset += charset.toUpperCase();
+        orig = orig.replaceAll("[^" + charset + "\\s]", "");
+        orig = orig.toLowerCase();
 
+        String translation = "";
+
+        String[] words = orig.split("\\s");
+        for (String word: words) {
+            if (dictionary.containsKey(word)) {
+                translation += dictionary.get(word) + " ";
+            } else {
+                translation += word + " ";
+            }
+        }
+        if (translation.length() > 0) translation = translation.substring(0, translation.length() - 1);
+
+        return translation;
+    }
+
+    /**
+     * Translates from this language to English.
+     * @param orig Text in this language
+     * @return English text
+     */
+    public String translateFrom(String orig) {
+        // Remove any unnecessary characters
+        orig = orig.replaceAll("[^a-zA-Z\\s]", "");
+        orig = orig.toLowerCase();
+
+        String translation = "";
+
+        String[] words = orig.split("\\s");
+        for (String word: words) {
+            if (reverseDictionary.containsKey(word)) {
+                translation += reverseDictionary.get(word) + " ";
+            } else {
+                translation += word + " ";
+            }
+        }
+        if (translation.length() > 0) translation = translation.substring(0, translation.length() - 1);
+
+        return translation;
     }
 }

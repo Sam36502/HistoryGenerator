@@ -72,7 +72,7 @@ public class Alphabet {
                 throw new InvalidAlphabetException("Alphabet '" + alpha + "' is invalid.");
         }
 
-        return null;
+        return alpha;
     }
 
     public char[] getConsonants() {
