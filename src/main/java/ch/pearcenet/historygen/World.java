@@ -4,10 +4,9 @@ import ch.pearcenet.historygen.exc.InvalidProvinceException;
 import org.fusesource.jansi.Ansi;
 
 import java.util.Random;
+import java.util.zip.CheckedInputStream;
 
 public class World {
-
-    private static final int SEED_ISLAND_COUNT = 5;
 
     // Display characters for province heights
     private static final Ansi HEIGHT_DEEP_SEA = Ansi.ansi().fg(Ansi.Color.BLUE).a("\u2588\u2588").reset();
@@ -49,14 +48,32 @@ public class World {
         rand = new Random(seed);
 
         // Generate 'seed islands' to grow into full continents
-        int[][] seeds = new int [SEED_ISLAND_COUNT][2];
-        for (int i=0; i<SEED_ISLAND_COUNT; i++) {
-            seeds[i][0] = randIntInRange(rand, 0, longitude);
-            seeds[i][1] = randIntInRange(rand, 0, latitude);
+        int seedCount = randIntInRange(rand, 10, 100);
+        for (int i=0; i<seedCount; i++) {
+            int x = randIntInRange(rand, 0, longitude);
+            int y = randIntInRange(rand, 0, latitude);
+            int size = randIntInRange(rand, 1, 10);
 
-            int size = randIntInRange(rand, 1, 5);
+            // Create islands
+            Island island = new Island(size, rand);
+            int rad = (island.getLen() - 1)/2;
+            for (int iy= -rad; iy<=rad; iy++) {
+                for (int ix= -rad; ix<=rad; ix++) {
+                    int absX = x + ix;
+                    int absY = y + iy;
 
-            // Create surrounding land
+                    // Check Coords are within map
+                    if (absX < 0 || absY < 0 || absX >= longitude || absY >= latitude)
+                        continue;
+
+                    int prevH = map[absX][absY].getHeight();
+                    int newH = island.getProvince(ix, iy).getHeight();
+
+                    if (newH > prevH) {
+                        map[absX][absY] = island.getProvince(ix, iy);
+                    }
+                }
+            }
 
         }
     }

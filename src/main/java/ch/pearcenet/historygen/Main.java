@@ -9,7 +9,7 @@ public class Main {
         AnsiConsole.systemInstall();
 
         System.out.println("Generating world with seed 69:");
-        World world = new World(69L, 50, 50);
+        World world = new World(69L, 100, 50);
         System.out.println(Ansi.ansi().render(world.toString()));
 
         AnsiConsole.systemUninstall();
