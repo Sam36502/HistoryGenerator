@@ -1,4 +1,4 @@
-package ch.pearcenet.historygen;
+package ch.pearcenet.historygen.world;
 
 import ch.pearcenet.historygen.exc.InvalidProvinceException;
 
@@ -74,5 +74,4 @@ public class Province {
      * @return The Province fertility
      */
     public int getFertility() { return this.fertility; }
-
 }

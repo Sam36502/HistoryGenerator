@@ -1,17 +1,28 @@
 package ch.pearcenet.historygen;
 
-import org.fusesource.jansi.Ansi;
+import ch.pearcenet.historygen.world.World;
 import org.fusesource.jansi.AnsiConsole;
+
+import java.util.Scanner;
 
 public class Main {
 
     public static void main(String[] args) {
         AnsiConsole.systemInstall();
+        Scanner input = new Scanner(System.in);
 
-        System.out.println("Generating world with seed 69:");
-        World world = new World(69L, 100, 50);
-        System.out.println(Ansi.ansi().render(world.toString()));
+        while (true) {
+            System.out.print("Enter world seed: ");
+            int seed = Integer.parseInt(input.nextLine());
 
+            if (seed == -1L) break;
+
+            System.out.println("Generated world with seed " + seed);
+            World world = new World(seed);
+            System.out.println(world);
+        }
+
+        input.close();
         AnsiConsole.systemUninstall();
     }
 
