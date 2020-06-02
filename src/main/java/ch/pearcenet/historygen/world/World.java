@@ -5,6 +5,7 @@ import de.articdive.jnoise.JNoise;
 import de.articdive.jnoise.interpolation.InterpolationType;
 import org.fusesource.jansi.Ansi;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 public class World {
@@ -26,6 +27,8 @@ public class World {
     private static final Ansi HEIGHT_MOUNTAIN = Ansi.ansi().fg(Ansi.Color.WHITE).a("\u2588\u2588").reset();
 
     private Province[][] map;
+
+    private ArrayList<Nation> nations;
 
     public World(int seed) {
         // Build Perling noise generator
@@ -76,6 +79,49 @@ public class World {
 
             }
         }
+
+        // Populate the world with random nations
+        for (int n=0; n<rand.nextInt(15 - 5) + 5; n++) { // 5 - 15 Starting nations
+
+            // Generate random seed coords on land
+            int x;
+            int y;
+            do {
+                x = rand.nextInt(MAP_WIDTH);
+                y = rand.nextInt(MAP_HEIGHT);
+
+                // Check seed isn't occupied
+                for (Nation nation: nations)
+                    if (nation.isCoordInNation(x, y))
+                        continue;
+            } while (map[x][y].getHeight() < 0);
+
+            // Grow nation based on random size
+            int radius = rand.nextInt(25 - 5) + 5; // 5 - 25 nation radius
+            for (int ny = y-radius; ny<y+radius; ny++) {
+                for (int nx = x-radius; nx < y+radius; nx++) {
+
+                    // Check coords are within map
+                    if (ny < 0 || nx < 0 || ny > MAP_HEIGHT || nx > MAP_WIDTH)
+                        continue;
+
+                    // Check coords aren't already in a nation
+                    boolean isOccupied = false;
+                    for (Nation nation: nations) {
+                        if (nation.isCoordInNation(nx, ny)) {
+                            isOccupied = true;
+                            break;
+                        }
+                    }
+                    if (isOccupied) continue;
+
+                    //TODO: Continue here
+
+                }
+            }
+
+        }
+
     }
 
     @Override

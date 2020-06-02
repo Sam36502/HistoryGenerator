@@ -15,6 +15,7 @@ import java.util.Scanner;
  */
 public class Language {
 
+    private static final String LANG_NAME = "language"; // The word to translate to the name of this nation's language
     private static final String ENG_DICT_FILE = "english.txt";
 
     private static ArrayList<String> englishDictionary;
@@ -23,6 +24,19 @@ public class Language {
 
     private HashMap<String, String> dictionary;
     private HashMap<String, String> reverseDictionary;
+
+    public Language(long seed) {
+        Language lang = null;
+        try {
+            lang = new Language(Alphabet.getRandAlphabet(seed), seed);
+        } catch (InvalidAlphabetException e) {
+            System.err.println("[ERROR] Invalid alphabet '" + e.getInvalidAlphabet().getName() + "' received from RandAlphabet.");
+            System.exit(1);
+        }
+        this.alphabet = lang.getAlphabet();
+        this.dictionary = lang.getDictionary();
+        this.reverseDictionary = lang.getReverseDictionary();
+    }
 
     public Language(String alpha, long seed) throws InvalidAlphabetException {
         // Load english dictionary
@@ -87,6 +101,14 @@ public class Language {
 
     public HashMap<String, String> getDictionary() {
         return dictionary;
+    }
+
+    public HashMap<String, String> getReverseDictionary() {
+        return reverseDictionary;
+    }
+
+    public String getName() {
+        return translateTo(LANG_NAME);
     }
 
     /**

@@ -6,10 +6,13 @@ import java.util.Random;
 
 public class Alphabet {
 
+    private String name;
+
     private char[] consonants;
 
     private char[] vowels;
 
+    //TODO: Support more eccentric charsets (cuneiform, runes, etruscan, etc.)
     public static Alphabet getAlphabet(String name) throws InvalidAlphabetException {
         name = name.toUpperCase();
         Alphabet alpha = new Alphabet();
@@ -17,8 +20,14 @@ public class Alphabet {
         switch (name) {
 
             case "LATIN":
+
                 alpha.setConsonants("bcdfghjklmnpqrstvwxyz".toCharArray());
                 alpha.setVowels("aeiou".toCharArray());
+                break;
+
+            case "GERMANIC":
+                alpha.setConsonants("bcdfghjklmnpqrstvwxyz".toCharArray());
+                alpha.setVowels("aäeioöuü".toCharArray());
                 break;
 
             case "RUNIC":
@@ -69,7 +78,7 @@ public class Alphabet {
                 break;
 
             default:
-                throw new InvalidAlphabetException("Alphabet '" + alpha + "' is invalid.");
+                throw new InvalidAlphabetException(alpha, "Alphabet '" + alpha + "' is invalid.");
         }
 
         return alpha;
@@ -93,6 +102,15 @@ public class Alphabet {
         return this;
     }
 
+    public Alphabet setName(String name) {
+        this.name = name;
+        return this;
+    }
+
+    public String getName() {
+        return name;
+    }
+
     public char getRandVowel(long seed) {
         Random r = new Random(seed);
         return vowels[r.nextInt(vowels.length)];
@@ -101,5 +119,16 @@ public class Alphabet {
     public char getRandConsonant(long seed) {
         Random r = new Random(seed);
         return consonants[r.nextInt(consonants.length)];
+    }
+
+    //TODO: Add more charsets
+    public static String getRandAlphabet(long seed) {
+        Random r = new Random(seed);
+        final String[] alphabets = {
+                "LATIN",
+                "GERMANIC"
+        };
+
+        return alphabets[r.nextInt(alphabets.length)];
     }
 }
