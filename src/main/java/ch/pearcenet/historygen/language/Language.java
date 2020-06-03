@@ -22,6 +22,8 @@ public class Language {
 
     private Alphabet alphabet;
 
+    private Random rand;
+
     private HashMap<String, String> dictionary;
     private HashMap<String, String> reverseDictionary;
 
@@ -36,6 +38,7 @@ public class Language {
         this.alphabet = lang.getAlphabet();
         this.dictionary = lang.getDictionary();
         this.reverseDictionary = lang.getReverseDictionary();
+        this.rand = new Random(seed);
     }
 
     public Language(String alpha, long seed) throws InvalidAlphabetException {
@@ -53,43 +56,42 @@ public class Language {
                 fis.close();
             } catch (IOException e) {
                 System.err.println("[ERROR] Failed to load English dictionary.");
+                System.exit(1);
             }
         }
 
-        Random rand = new Random(seed);
+        this.rand = new Random(seed);
         dictionary = new HashMap<>();
         reverseDictionary = new HashMap<>();
 
         // Create a word for each english counterpart
         this.alphabet = Alphabet.getAlphabet(alpha);
         for (String engWord: englishDictionary) {
-            String newWord = newWord(rand);
-
-            while (dictionary.containsKey(newWord) || reverseDictionary.containsKey(newWord)) {
-                newWord = newWord(rand);
-            }
-
+            String newWord = newWord();
             dictionary.put(engWord, newWord);
             reverseDictionary.put(newWord, engWord);
         }
 
     }
 
-    private String newWord(Random rand) {
+    public String newWord() {
         String newWord = "";
-        int len = rand.nextInt(9)+2;
 
-        if (len % 2 != 0) {
-            len--;
-            if (rand.nextInt(1) == 0)
-                newWord += alphabet.getRandConsonant(rand.nextLong());
-            else
-                newWord += alphabet.getRandConsonant(rand.nextLong());
-        }
+        while (dictionary.containsKey(newWord) || reverseDictionary.containsKey(newWord)) {
+            int len = rand.nextInt(10 - 2) + 2; // Word length 2 - 10
 
-        for (int i=0; i<len; i+=2) {
-            newWord += alphabet.getRandConsonant(rand.nextLong());
-            newWord += alphabet.getRandVowel(rand.nextLong());
+            if (len % 2 != 0) {
+                len--;
+                if (rand.nextInt(1) == 0)
+                    newWord += alphabet.getRandConsonant(rand.nextLong());
+                else
+                    newWord += alphabet.getRandConsonant(rand.nextLong());
+            }
+
+            for (int i = 0; i < len; i += 2) {
+                newWord += alphabet.getRandConsonant(rand.nextLong());
+                newWord += alphabet.getRandVowel(rand.nextLong());
+            }
         }
 
         return newWord;

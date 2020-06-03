@@ -125,8 +125,7 @@ public class Alphabet {
     public static String getRandAlphabet(long seed) {
         Random r = new Random(seed);
         final String[] alphabets = {
-                "LATIN",
-                "GERMANIC"
+                "LATIN"
         };
 
         return alphabets[r.nextInt(alphabets.length)];

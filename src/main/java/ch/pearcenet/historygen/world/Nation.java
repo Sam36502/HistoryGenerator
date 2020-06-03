@@ -1,10 +1,9 @@
 package ch.pearcenet.historygen.world;
 
-import ch.pearcenet.historygen.exc.InvalidAlphabetException;
-import ch.pearcenet.historygen.language.Alphabet;
 import ch.pearcenet.historygen.language.Language;
+import org.fusesource.jansi.Ansi;
 
-import java.util.HashMap;
+import java.util.Random;
 
 /**
  * Group of people with a common language
@@ -12,13 +11,24 @@ import java.util.HashMap;
 public class Nation {
 
     private static final String NATION_NAME = "nation"; // The word to translate to the name of this nation
+    private static final Ansi.Color[] AVAIL_COLOURS = {
+            Ansi.Color.RED,
+            Ansi.Color.YELLOW,
+            Ansi.Color.GREEN,
+            Ansi.Color.CYAN,
+            Ansi.Color.BLUE,
+            Ansi.Color.MAGENTA
+    };
 
     private Language language;
 
-    private HashMap<String, Boolean> coords;
+    private Ansi.Color colour;
 
     public Nation(long seed) {
+        Random r = new Random(seed);
+
         this.language = new Language(seed);
+        this.colour = AVAIL_COLOURS[r.nextInt(AVAIL_COLOURS.length)];
     }
 
     public String getName() {
@@ -29,13 +39,8 @@ public class Nation {
         return language;
     }
 
-    public boolean isCoordInNation(int x, int y) {
-        return coords.get(x + "," + y);
-    }
-
-    public Nation addCoord(int x, int y) {
-        coords.put(x + "," + y, true);
-        return this;
+    public String getAnsiDisplay() {
+        return Ansi.ansi().fg(colour).a("\u2588\u2588").reset().toString();
     }
 
 }

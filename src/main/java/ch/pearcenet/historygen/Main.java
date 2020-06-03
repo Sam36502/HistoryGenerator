@@ -2,6 +2,7 @@ package ch.pearcenet.historygen;
 
 import ch.pearcenet.historygen.exc.InvalidAlphabetException;
 import ch.pearcenet.historygen.language.Language;
+import ch.pearcenet.historygen.world.Nation;
 import ch.pearcenet.historygen.world.World;
 import org.fusesource.jansi.AnsiConsole;
 
@@ -12,33 +13,25 @@ public class Main {
     public static void main(String[] args) {
         AnsiConsole.systemInstall();
         Scanner input = new Scanner(System.in);
-        Language lang = null;
 
-        System.out.print("Language Seed: ");
-        long seed = Long.parseLong(input.nextLine());
+        // Get seed
+        System.out.print("Enter world seed: ");
+        int seed = Integer.parseInt(input.nextLine());
 
-        System.out.print("Alphabet to use: ");
-        String alpha = input.nextLine();
+        World world = new World(seed);
 
-        try {
-            lang = new Language(alpha, seed);
-        } catch (InvalidAlphabetException e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
+        System.out.println("\nGeographic Map:");
+        System.out.println(world.getGeoMap());
 
-        String name = lang.translateTo("language");
-        System.out.println(name + " translator:\n-------------------");
+        System.out.println("\nPolitical Map:");
+        System.out.println(world.getPolMap());
 
-        while (true) {
-            System.out.print("String to translate: ");
-            String orig = input.nextLine();
-            String translation = lang.translateTo(orig);
-            System.out.println(orig + " ---> " + translation);
-            String reverse = lang.translateFrom(translation);
-            System.out.println(reverse + " <--- " + lang.translateTo(reverse) + "\n");
-
-            if ("exit".equals(orig)) break;
+        System.out.println("\nList of generated nations:\n---------------------------");
+        for (Nation n: world.getNations()) {
+            System.out.println("" +
+                    "The nation of '" + n.getName() +
+                    "' which speaks '" + n.getLanguage().getName() +
+                    "' is coloured on the map like so: " + n.getAnsiDisplay());
         }
 
         input.close();

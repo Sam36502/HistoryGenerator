@@ -1,6 +1,7 @@
 package ch.pearcenet.historygen.world;
 
 import ch.pearcenet.historygen.exc.InvalidProvinceException;
+import org.fusesource.jansi.Ansi;
 
 /**
  * Contains information about single tiles on the board
@@ -32,6 +33,8 @@ public class Province {
      */
     private int fertility;
 
+    private Nation owner;
+
     /**
      * Province Constructor
      * @param name Name of the province
@@ -48,6 +51,7 @@ public class Province {
         this.name = name;
         this.height = height;
         this.fertility = fertility;
+        this.owner = null;
     }
 
     /**
@@ -74,4 +78,14 @@ public class Province {
      * @return The Province fertility
      */
     public int getFertility() { return this.fertility; }
+
+    public Province setOwner(Nation owner) {
+        this.owner = owner;
+        this.name = this.owner.getLanguage().newWord();
+        return this;
+    }
+
+    public Nation getOwner() {
+        return owner;
+    }
 }
