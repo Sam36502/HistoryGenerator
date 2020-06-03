@@ -33,6 +33,9 @@ public class Province {
      */
     private int fertility;
 
+    private int x;
+    private int y;
+
     private Nation owner;
 
     /**
@@ -82,6 +85,7 @@ public class Province {
     public Province setOwner(Nation owner) {
         this.owner = owner;
         this.name = this.owner.getLanguage().newWord();
+        this.owner.getLand().add(this);
         return this;
     }
 

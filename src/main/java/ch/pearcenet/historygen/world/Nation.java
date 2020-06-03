@@ -3,6 +3,7 @@ package ch.pearcenet.historygen.world;
 import ch.pearcenet.historygen.language.Language;
 import org.fusesource.jansi.Ansi;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 /**
@@ -22,6 +23,8 @@ public class Nation {
 
     private Language language;
 
+    private ArrayList<Province> land;
+
     private Ansi.Color colour;
 
     public Nation(long seed) {
@@ -29,6 +32,7 @@ public class Nation {
 
         this.language = new Language(seed);
         this.colour = AVAIL_COLOURS[r.nextInt(AVAIL_COLOURS.length)];
+        this.land = new ArrayList<>();
     }
 
     public String getName() {
@@ -41,6 +45,21 @@ public class Nation {
 
     public String getAnsiDisplay() {
         return Ansi.ansi().fg(colour).a("\u2588\u2588").reset().toString();
+    }
+
+    public ArrayList<Province> getLand() {
+        return land;
+    }
+
+    public int getFecundity() {
+        int fec = 0;
+        for (Province p: land)
+            fec += p.getFertility();
+        return fec;
+    }
+
+    public int getSize() {
+        return land.size();
     }
 
 }

@@ -20,8 +20,11 @@ public class Main {
 
         World world = new World(seed);
 
-        System.out.println("\nGeographic Map:");
+        System.out.println("\nThe year of our lord " + world.getYear() + "\nGeographic Map:");
         System.out.println(world.getGeoMap());
+
+        System.out.println("\nFertility Map:");
+        System.out.println(world.getFerMap());
 
         System.out.println("\nPolitical Map:");
         System.out.println(world.getPolMap());
@@ -32,6 +35,15 @@ public class Main {
                     "The nation of '" + n.getName() +
                     "' which speaks '" + n.getLanguage().getName() +
                     "' is coloured on the map like so: " + n.getAnsiDisplay());
+        }
+
+        while (true) {
+            System.out.println("Press enter to skip 5 years: ");
+            if ("exit".equals(input.nextLine())) break;
+
+            for (int i=0;i<5;i++) world.nextYear();
+            System.out.println("\nThe year of our lord " + world.getYear() + "\nPolitical Map:");
+            System.out.println(world.getPolMap());
         }
 
         input.close();

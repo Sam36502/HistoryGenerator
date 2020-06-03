@@ -30,13 +30,15 @@ public class World {
 
     private ArrayList<Nation> nations;
 
+    Random rand;
+
     private int year;
 
     public World(int seed) {
         // Build Perling noise generator
         JNoise perlin = JNoise.newBuilder().perlin().setInterpolationType(InterpolationType.LINEAR).setSeed(seed).build();
 
-        Random rand = new Random(seed);
+        this.rand = new Random(seed);
 
         // Set starting year
         this.year = rand.nextInt(100 - 1) + 1; // Starting year is somewhere between 1 - 100
@@ -52,31 +54,31 @@ public class World {
 
                 if (height <= MAP_OCEAN) {
                     try {
-                        map[x][y] = new Province("Terra Nullius", -2, rand.nextInt(2) + 1);
+                        map[x][y] = new Province("Terra Nullius", -2, rand.nextInt(4));
                     } catch (InvalidProvinceException e) {
                         e.printStackTrace();
                     }
                 } else if (height <= MAP_COAST) {
                     try {
-                        map[x][y] = new Province("Terra Nullius", -1, rand.nextInt(2) + 1);
+                        map[x][y] = new Province("Terra Nullius", -1, rand.nextInt(4));
                     } catch (InvalidProvinceException e) {
                         e.printStackTrace();
                     }
                 } else if (height <= MAP_BEACH) {
                     try {
-                        map[x][y] = new Province("Terra Nullius", 0, rand.nextInt(2) + 1);
+                        map[x][y] = new Province("Terra Nullius", 0, rand.nextInt(4));
                     } catch (InvalidProvinceException e) {
                         e.printStackTrace();
                     }
                 } else if (height <= MAP_HILLS) {
                     try {
-                        map[x][y] = new Province("Terra Nullius", 1, rand.nextInt(2) + 1);
+                        map[x][y] = new Province("Terra Nullius", 1, rand.nextInt(4));
                     } catch (InvalidProvinceException e) {
                         e.printStackTrace();
                     }
                 } else {
                     try {
-                        map[x][y] = new Province("Terra Nullius", 2, rand.nextInt(2) + 1);
+                        map[x][y] = new Province("Terra Nullius", 2, rand.nextInt(3));
                     } catch (InvalidProvinceException e) {
                         e.printStackTrace();
                     }
@@ -107,6 +109,32 @@ public class World {
 
     public void nextYear() {
         this.year++;
+
+        // Expand each nation according to its fecundity
+        for (int y=0; y<MAP_HEIGHT; y++) {
+            for (int x=0; x<MAP_WIDTH; x++) {
+
+                // Check land even belongs to a nation
+                Nation owner = map[x][y].getOwner();
+                if (owner == null)
+                    continue;
+
+                // Check borders and expand if possible
+                if (x+1 < MAP_WIDTH && map[x+1][y].getOwner() == null && map[x+1][y].getHeight() >= 0)
+                    if (rand.nextInt(owner.getFecundity()+1)>=owner.getSize()) map[x+1][y].setOwner(owner);
+
+                if (x - 1 >= 0 && map[x-1][y].getOwner() == null && map[x-1][y].getHeight() >= 0)
+                    if (rand.nextInt(owner.getFecundity()+1)>=owner.getSize()) map[x-1][y].setOwner(owner);
+
+                if (y+1 < MAP_HEIGHT && map[x][y+1].getOwner() == null && map[x][y+1].getHeight() >= 0)
+                    if (rand.nextInt(owner.getFecundity()+1)>=owner.getSize()) map[x][y+1].setOwner(owner);
+
+                if (y - 1 >= 0 && map[x][y-1].getOwner() == null && map[x][y-1].getHeight() >= 0)
+                    if (rand.nextInt(owner.getFecundity()+1)>=owner.getSize()) map[x][y-1].setOwner(owner);
+
+            }
+        }
+
     }
 
     public String getGeoMap() {
@@ -189,6 +217,54 @@ public class World {
         result.append(Ansi.ansi().bg(Ansi.Color.BLACK).a("\u255D\n").reset().toString());
 
         return result.toString();
+    }
+
+    public String getFerMap() {
+        // Top border
+        StringBuilder result = new StringBuilder(Ansi.ansi().bg(Ansi.Color.BLACK).a("\u2554").reset().toString());
+        for (int i=0; i<map.length; i++)
+            result.append(Ansi.ansi().bg(Ansi.Color.BLACK).a("\u2550\u2550").reset().toString());
+        result.append(Ansi.ansi().bg(Ansi.Color.BLACK).a("\u2557\n").reset().toString());
+
+        // All rows
+        for (int y=map[0].length-1; y>=0; y--) {
+            result.append(Ansi.ansi().bg(Ansi.Color.BLACK).a("\u2551").reset().toString());
+
+            for (int x=0; x<map.length; x++) {
+                switch (map[x][y].getFertility()) {
+
+                    case 0:
+                        result.append(Ansi.ansi().fg(Ansi.Color.RED).a("\u2588\u2588").reset());
+                        break;
+
+                    case 1:
+                        result.append(Ansi.ansi().fg(Ansi.Color.MAGENTA).a("\u2588\u2588").reset());
+                        break;
+
+                    case 2:
+                        result.append(Ansi.ansi().fg(Ansi.Color.YELLOW).a("\u2588\u2588").reset());
+                        break;
+
+                    case 3:
+                        result.append(Ansi.ansi().fg(Ansi.Color.GREEN).a("\u2588\u2588").reset());
+                        break;
+
+                }
+            }
+            result.append(Ansi.ansi().bg(Ansi.Color.BLACK).a("\u2551\n").reset().toString());
+        }
+
+        // Bottom border
+        result.append(Ansi.ansi().bg(Ansi.Color.BLACK).a("\u255A").reset().toString());
+        for (int i=0; i<map.length; i++)
+            result.append(Ansi.ansi().bg(Ansi.Color.BLACK).a("\u2550\u2550").reset().toString());
+        result.append(Ansi.ansi().bg(Ansi.Color.BLACK).a("\u255D\n").reset().toString());
+
+        return result.toString();
+    }
+
+    public int getYear() {
+        return year;
     }
 
     public ArrayList<Nation> getNations() {
