@@ -1,11 +1,11 @@
 package ch.pearcenet.historygen;
 
-import ch.pearcenet.historygen.exc.InvalidAlphabetException;
-import ch.pearcenet.historygen.language.Language;
 import ch.pearcenet.historygen.world.Nation;
 import ch.pearcenet.historygen.world.World;
+import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
 
+import java.util.Collections;
 import java.util.Scanner;
 
 public class Main {
@@ -40,10 +40,21 @@ public class Main {
         while (true) {
             System.out.println("Press enter to skip 5 years: ");
             if ("exit".equals(input.nextLine())) break;
+            System.out.println(Ansi.ansi().eraseScreen().cursor(0, 0));
 
             for (int i=0;i<5;i++) world.nextYear();
             System.out.println("\nThe year of our lord " + world.getYear() + "\nPolitical Map:");
             System.out.println(world.getPolMap());
+        }
+
+        System.out.println("\n\nNations ranked by size:\n------------------------");
+        Collections.sort(world.getNations());
+        Collections.reverse(world.getNations());
+        for (int rank=1; rank<=world.getNations().size(); rank++) {
+            Nation n = world.getNations().get(rank - 1);
+            System.out.println(rank + ": " +
+                    n.getName() + " - " + n.getAnsiDisplay() +
+                    "; They speak '" + n.getLanguage().getName() + "'.");
         }
 
         input.close();

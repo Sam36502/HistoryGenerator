@@ -18,13 +18,9 @@ public class World {
     static final double MAP_COAST = 0.2; // Height up to which counts as coast
     static final double MAP_BEACH = 0.28; // Height up to which counts as beach
     static final double MAP_HILLS = 0.6; // Height up to which counts as hills. Anything above is a mountain
-
-    // Display characters for province heights
-    private static final Ansi HEIGHT_DEEP_SEA = Ansi.ansi().fg(Ansi.Color.BLUE).a("\u2588\u2588").reset();
-    private static final Ansi HEIGHT_SHALLOW_SEA = Ansi.ansi().fg(Ansi.Color.CYAN).a("\u2588\u2588").reset();
-    private static final Ansi HEIGHT_BEACH = Ansi.ansi().fg(Ansi.Color.YELLOW).a("\u2588\u2588").reset();
-    private static final Ansi HEIGHT_HILL = Ansi.ansi().fg(Ansi.Color.GREEN).a("\u2588\u2588").reset();
-    private static final Ansi HEIGHT_MOUNTAIN = Ansi.ansi().fg(Ansi.Color.WHITE).a("\u2588\u2588").reset();
+    static final double MAP_BARREN = -0.3;
+    static final double MAP_DESERT = 0.1;
+    static final double MAP_MEDIUM = 0.3;
 
     private Province[][] map;
 
@@ -34,11 +30,12 @@ public class World {
 
     private int year;
 
-    public World(int seed) {
-        // Build Perling noise generator
-        JNoise perlin = JNoise.newBuilder().perlin().setInterpolationType(InterpolationType.LINEAR).setSeed(seed).build();
-
+    public World(long seed) {
         this.rand = new Random(seed);
+
+        // Build Perlin noise generator
+        JNoise terrainGen = JNoise.newBuilder().perlin().setInterpolationType(InterpolationType.LINEAR).setSeed(rand.nextInt()).build();
+        JNoise fertilityGen = JNoise.newBuilder().perlin().setInterpolationType(InterpolationType.LINEAR).setSeed(rand.nextInt()).build();
 
         // Set starting year
         this.year = rand.nextInt(100 - 1) + 1; // Starting year is somewhere between 1 - 100
@@ -50,35 +47,45 @@ public class World {
                 double pX = ((double) x)/MAP_ZOOM;
                 double pY = ((double) y)/MAP_ZOOM;
 
-                double height = perlin.getNoise(pX, pY);
+                double height = terrainGen.getNoise(pX, pY);
+                double fert = fertilityGen.getNoise(pX, pY);
+
+                // Get fertility
+                int fertility = 3;
+                if (fert <= MAP_BARREN)
+                    fertility = 0;
+                else if (fert <= MAP_DESERT)
+                    fertility = 1;
+                else if (fert <= MAP_MEDIUM)
+                    fertility = 2;
 
                 if (height <= MAP_OCEAN) {
                     try {
-                        map[x][y] = new Province("Terra Nullius", -2, rand.nextInt(4));
+                        map[x][y] = new Province("Terra Nullius", -2, fertility);
                     } catch (InvalidProvinceException e) {
                         e.printStackTrace();
                     }
                 } else if (height <= MAP_COAST) {
                     try {
-                        map[x][y] = new Province("Terra Nullius", -1, rand.nextInt(4));
+                        map[x][y] = new Province("Terra Nullius", -1, fertility);
                     } catch (InvalidProvinceException e) {
                         e.printStackTrace();
                     }
                 } else if (height <= MAP_BEACH) {
                     try {
-                        map[x][y] = new Province("Terra Nullius", 0, rand.nextInt(4));
+                        map[x][y] = new Province("Terra Nullius", 0, fertility);
                     } catch (InvalidProvinceException e) {
                         e.printStackTrace();
                     }
                 } else if (height <= MAP_HILLS) {
                     try {
-                        map[x][y] = new Province("Terra Nullius", 1, rand.nextInt(4));
+                        map[x][y] = new Province("Terra Nullius", 1, fertility);
                     } catch (InvalidProvinceException e) {
                         e.printStackTrace();
                     }
                 } else {
                     try {
-                        map[x][y] = new Province("Terra Nullius", 2, rand.nextInt(3));
+                        map[x][y] = new Province("Terra Nullius", 2, fertility);
                     } catch (InvalidProvinceException e) {
                         e.printStackTrace();
                     }
@@ -152,23 +159,23 @@ public class World {
                 switch (map[x][y].getHeight()) {
 
                     case -2:
-                        result.append(HEIGHT_DEEP_SEA);
+                        result.append(Ansi.ansi().fg(Ansi.Color.BLUE).a("\u2588\u2588").reset());
                         break;
 
                     case -1:
-                        result.append(HEIGHT_SHALLOW_SEA);
+                        result.append(Ansi.ansi().fg(Ansi.Color.CYAN).a("\u2588\u2588").reset());
                         break;
 
                     case 0:
-                        result.append(HEIGHT_BEACH);
+                        result.append(Ansi.ansi().fg(Ansi.Color.YELLOW).a("\u2588\u2588").reset());
                         break;
 
                     case 1:
-                        result.append(HEIGHT_HILL);
+                        result.append(Ansi.ansi().fg(Ansi.Color.GREEN).a("\u2588\u2588").reset());
                         break;
 
                     case 2:
-                        result.append(HEIGHT_MOUNTAIN);
+                        result.append(Ansi.ansi().fg(Ansi.Color.WHITE).a("\u2588\u2588").reset());
                         break;
                 }
             }
@@ -234,21 +241,43 @@ public class World {
                 switch (map[x][y].getFertility()) {
 
                     case 0:
-                        result.append(Ansi.ansi().fg(Ansi.Color.RED).a("\u2588\u2588").reset());
+                        result.append(Ansi.ansi().fg(Ansi.Color.RED).a("\u2588").reset());
                         break;
 
                     case 1:
-                        result.append(Ansi.ansi().fg(Ansi.Color.MAGENTA).a("\u2588\u2588").reset());
+                        result.append(Ansi.ansi().fg(Ansi.Color.MAGENTA).a("\u2588").reset());
                         break;
 
                     case 2:
-                        result.append(Ansi.ansi().fg(Ansi.Color.YELLOW).a("\u2588\u2588").reset());
+                        result.append(Ansi.ansi().fg(Ansi.Color.YELLOW).a("\u2588").reset());
                         break;
 
                     case 3:
-                        result.append(Ansi.ansi().fg(Ansi.Color.GREEN).a("\u2588\u2588").reset());
+                        result.append(Ansi.ansi().fg(Ansi.Color.GREEN).a("\u2588").reset());
                         break;
 
+                }
+                switch (map[x][y].getHeight()) {
+
+                    case -2:
+                        result.append(Ansi.ansi().fg(Ansi.Color.BLUE).a("\u2588").reset());
+                        break;
+
+                    case -1:
+                        result.append(Ansi.ansi().fg(Ansi.Color.CYAN).a("\u2588").reset());
+                        break;
+
+                    case 0:
+                        result.append(Ansi.ansi().fg(Ansi.Color.YELLOW).a("\u2588").reset());
+                        break;
+
+                    case 1:
+                        result.append(Ansi.ansi().fg(Ansi.Color.GREEN).a("\u2588").reset());
+                        break;
+
+                    case 2:
+                        result.append(Ansi.ansi().fg(Ansi.Color.WHITE).a("\u2588").reset());
+                        break;
                 }
             }
             result.append(Ansi.ansi().bg(Ansi.Color.BLACK).a("\u2551\n").reset().toString());

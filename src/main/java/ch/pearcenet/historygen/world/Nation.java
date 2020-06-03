@@ -9,7 +9,7 @@ import java.util.Random;
 /**
  * Group of people with a common language
  */
-public class Nation {
+public class Nation implements Comparable<Nation> {
 
     private static final String NATION_NAME = "nation"; // The word to translate to the name of this nation
     private static final Ansi.Color[] AVAIL_COLOURS = {
@@ -62,4 +62,8 @@ public class Nation {
         return land.size();
     }
 
+    @Override
+    public int compareTo(Nation o) {
+        return Integer.valueOf(this.getSize()).compareTo(Integer.valueOf(o.getSize()));
+    }
 }
