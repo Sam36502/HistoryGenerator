@@ -7,15 +7,15 @@ version '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
-    maven {
-        url "https://repo.articdive.de/repository/maven-public/"
+    flatDir {
+        dirs 'lib'
     }
 }
 
 dependencies {
     compile group: 'org.fusesource.jansi', name: 'jansi', version: '1.18'
-    compile "de.articdive:jnoise:1.0-SNAPSHOT"
     testCompile group: 'junit', name: 'junit', version: '4.12'
+    implementation name: 'flow-noise-1.0.0'
 }
 
 jar {

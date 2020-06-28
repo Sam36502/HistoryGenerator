@@ -1,5 +1,6 @@
 package ch.pearcenet.historygen;
 
+import ch.pearcenet.historygen.display.MapDisplay;
 import ch.pearcenet.historygen.world.Nation;
 import ch.pearcenet.historygen.world.World;
 import org.fusesource.jansi.Ansi;
@@ -21,20 +22,19 @@ public class Main {
         World world = new World(seed);
 
         System.out.println("\nThe year of our lord " + world.getYear() + "\nGeographic Map:");
-        System.out.println(world.getGeoMap());
+        MapDisplay geoMap = new MapDisplay(MapDisplay.Mapmode.GEOGRAPHIC, world);
 
         System.out.println("\nFertility Map:");
-        System.out.println(world.getFerMap());
+        MapDisplay ferMap = new MapDisplay(MapDisplay.Mapmode.FERTILITY, world);
 
         System.out.println("\nPolitical Map:");
-        System.out.println(world.getPolMap());
+        MapDisplay polMap = new MapDisplay(MapDisplay.Mapmode.POLITICAL, world);
 
         System.out.println("\nList of generated nations:\n---------------------------");
         for (Nation n: world.getNations()) {
             System.out.println("" +
                     "The nation of '" + n.getName() +
-                    "' which speaks '" + n.getLanguage().getName() +
-                    "' is coloured on the map like so: " + n.getAnsiDisplay());
+                    "' which speaks '" + n.getLanguage().getName());
         }
 
         while (true) {
@@ -44,7 +44,6 @@ public class Main {
 
             for (int i=0;i<5;i++) world.nextYear();
             System.out.println("\nThe year of our lord " + world.getYear() + "\nPolitical Map:");
-            System.out.println(world.getPolMap());
         }
 
         System.out.println("\n\nNations ranked by size:\n------------------------");
@@ -53,7 +52,7 @@ public class Main {
         for (int rank=1; rank<=world.getNations().size(); rank++) {
             Nation n = world.getNations().get(rank - 1);
             System.out.println(rank + ": " +
-                    n.getName() + " - " + n.getAnsiDisplay() +
+                    n.getName() + " - " +
                     "; They speak '" + n.getLanguage().getName() + "'.");
         }
 

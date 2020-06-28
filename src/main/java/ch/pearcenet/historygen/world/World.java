@@ -1,9 +1,7 @@
 package ch.pearcenet.historygen.world;
 
 import ch.pearcenet.historygen.exc.InvalidProvinceException;
-import de.articdive.jnoise.JNoise;
-import de.articdive.jnoise.interpolation.InterpolationType;
-import org.fusesource.jansi.Ansi;
+import com.flowpowered.noise.module.source.Perlin;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -11,16 +9,16 @@ import java.util.Random;
 public class World {
 
     // World Generation constants
-    static final int MAP_WIDTH = 100; // Longitude
-    static final int MAP_HEIGHT = 50; // Latitude
-    static final double MAP_ZOOM = 15.0; // Map complexity
-    static final double MAP_OCEAN = 0.0; // Height up to which counts as ocean
-    static final double MAP_COAST = 0.2; // Height up to which counts as coast
-    static final double MAP_BEACH = 0.28; // Height up to which counts as beach
-    static final double MAP_HILLS = 0.6; // Height up to which counts as hills. Anything above is a mountain
-    static final double MAP_BARREN = -0.3;
-    static final double MAP_DESERT = 0.1;
-    static final double MAP_MEDIUM = 0.3;
+    public static final int MAP_WIDTH = 100; // Total width (Longitude)
+    public static final int MAP_HEIGHT = 50; // Total height (Latitude)
+    public static final double MAP_ZOOM = 15.0; // Map complexity
+    public static final double MAP_OCEAN = 0.0; // Height up to which counts as ocean
+    public static final double MAP_COAST = 0.2; // Height up to which counts as coast
+    public static final double MAP_BEACH = 0.28; // Height up to which counts as beach
+    public static final double MAP_HILLS = 0.6; // Height up to which counts as hills. Anything above is a mountain
+    public static final double MAP_BARREN = -0.3;
+    public static final double MAP_DESERT = 0.1;
+    public static final double MAP_MEDIUM = 0.3;
 
     private Province[][] map;
 
@@ -34,11 +32,13 @@ public class World {
         this.rand = new Random(seed);
 
         // Build Perlin noise generator
-        JNoise terrainGen = JNoise.newBuilder().perlin().setInterpolationType(InterpolationType.LINEAR).setSeed(rand.nextInt()).build();
-        JNoise fertilityGen = JNoise.newBuilder().perlin().setInterpolationType(InterpolationType.LINEAR).setSeed(rand.nextInt()).build();
+        Perlin terrainGen = new Perlin();
+        terrainGen.setSeed(this.rand.nextInt());
+        Perlin fertilityGen = new Perlin();
+        fertilityGen.setSeed(this.rand.nextInt());
 
         // Set starting year
-        this.year = rand.nextInt(100 - 1) + 1; // Starting year is somewhere between 1 - 100
+        this.year = getRandInt(1, 100);
 
         // Fill map with land from Perlin noise
         map = new Province[MAP_WIDTH][MAP_HEIGHT];
@@ -47,8 +47,8 @@ public class World {
                 double pX = ((double) x)/MAP_ZOOM;
                 double pY = ((double) y)/MAP_ZOOM;
 
-                double height = terrainGen.getNoise(pX, pY);
-                double fert = fertilityGen.getNoise(pX, pY);
+                double height = terrainGen.getValue(pX, pY, 0);
+                double fert = fertilityGen.getValue(pX, pY, 0);
 
                 // Get fertility
                 int fertility = 3;
@@ -96,7 +96,7 @@ public class World {
 
         // Populate the world with random nations
         nations = new ArrayList<>();
-        for (int n=0; n<rand.nextInt(15 - 5) + 5; n++) { // 5 - 15 Starting nations
+        for (int n=0; n<getRandInt(5, 15); n++) {
 
             // Generate random seed coords on land
             int x;
@@ -144,152 +144,8 @@ public class World {
 
     }
 
-    public String getGeoMap() {
-        // Top border
-        StringBuilder result = new StringBuilder(Ansi.ansi().bg(Ansi.Color.BLUE).a("\u2554").reset().toString());
-        for (int i=0; i<map.length; i++)
-            result.append(Ansi.ansi().bg(Ansi.Color.BLUE).a("\u2550\u2550").reset().toString());
-        result.append(Ansi.ansi().bg(Ansi.Color.BLUE).a("\u2557\n").reset().toString());
-
-        // All rows
-        for (int y=map[0].length-1; y>=0; y--) {
-            result.append(Ansi.ansi().bg(Ansi.Color.BLUE).a("\u2551").reset().toString());
-
-            for (int x=0; x<map.length; x++) {
-                switch (map[x][y].getHeight()) {
-
-                    case -2:
-                        result.append(Ansi.ansi().fg(Ansi.Color.BLUE).a("\u2588\u2588").reset());
-                        break;
-
-                    case -1:
-                        result.append(Ansi.ansi().fg(Ansi.Color.CYAN).a("\u2588\u2588").reset());
-                        break;
-
-                    case 0:
-                        result.append(Ansi.ansi().fg(Ansi.Color.YELLOW).a("\u2588\u2588").reset());
-                        break;
-
-                    case 1:
-                        result.append(Ansi.ansi().fg(Ansi.Color.GREEN).a("\u2588\u2588").reset());
-                        break;
-
-                    case 2:
-                        result.append(Ansi.ansi().fg(Ansi.Color.WHITE).a("\u2588\u2588").reset());
-                        break;
-                }
-            }
-            result.append(Ansi.ansi().bg(Ansi.Color.BLUE).a("\u2551\n").reset().toString());
-        }
-
-        // Bottom border
-        result.append(Ansi.ansi().bg(Ansi.Color.BLUE).a("\u255A").reset().toString());
-        for (int i=0; i<map.length; i++)
-            result.append(Ansi.ansi().bg(Ansi.Color.BLUE).a("\u2550\u2550").reset().toString());
-        result.append(Ansi.ansi().bg(Ansi.Color.BLUE).a("\u255D\n").reset().toString());
-
-        return result.toString();
-    }
-
-    public String getPolMap() {
-        // Top border
-        StringBuilder result = new StringBuilder(Ansi.ansi().bg(Ansi.Color.BLACK).a("\u2554").reset().toString());
-        for (int i=0; i<map.length; i++)
-            result.append(Ansi.ansi().bg(Ansi.Color.BLACK).a("\u2550\u2550").reset().toString());
-        result.append(Ansi.ansi().bg(Ansi.Color.BLACK).a("\u2557\n").reset().toString());
-
-        // All rows
-        for (int y=map[0].length-1; y>=0; y--) {
-            result.append(Ansi.ansi().bg(Ansi.Color.BLACK).a("\u2551").reset().toString());
-
-            for (int x=0; x<map.length; x++) {
-                if (map[x][y].getOwner() != null) {
-                    result.append(map[x][y].getOwner().getAnsiDisplay());
-                } else {
-                    if (map[x][y].getHeight() < 0)
-                        // Ocean
-                        result.append(Ansi.ansi().fg(Ansi.Color.BLACK).a("\u2588\u2588").reset());
-                    else
-                        // Terra Nullius
-                        result.append(Ansi.ansi().fg(Ansi.Color.WHITE).a("\u2588\u2588").reset());
-                }
-            }
-            result.append(Ansi.ansi().bg(Ansi.Color.BLACK).a("\u2551\n").reset().toString());
-        }
-
-        // Bottom border
-        result.append(Ansi.ansi().bg(Ansi.Color.BLACK).a("\u255A").reset().toString());
-        for (int i=0; i<map.length; i++)
-            result.append(Ansi.ansi().bg(Ansi.Color.BLACK).a("\u2550\u2550").reset().toString());
-        result.append(Ansi.ansi().bg(Ansi.Color.BLACK).a("\u255D\n").reset().toString());
-
-        return result.toString();
-    }
-
-    public String getFerMap() {
-        // Top border
-        StringBuilder result = new StringBuilder(Ansi.ansi().bg(Ansi.Color.BLACK).a("\u2554").reset().toString());
-        for (int i=0; i<map.length; i++)
-            result.append(Ansi.ansi().bg(Ansi.Color.BLACK).a("\u2550\u2550").reset().toString());
-        result.append(Ansi.ansi().bg(Ansi.Color.BLACK).a("\u2557\n").reset().toString());
-
-        // All rows
-        for (int y=map[0].length-1; y>=0; y--) {
-            result.append(Ansi.ansi().bg(Ansi.Color.BLACK).a("\u2551").reset().toString());
-
-            for (int x=0; x<map.length; x++) {
-                switch (map[x][y].getFertility()) {
-
-                    case 0:
-                        result.append(Ansi.ansi().fg(Ansi.Color.RED).a("\u2588").reset());
-                        break;
-
-                    case 1:
-                        result.append(Ansi.ansi().fg(Ansi.Color.MAGENTA).a("\u2588").reset());
-                        break;
-
-                    case 2:
-                        result.append(Ansi.ansi().fg(Ansi.Color.YELLOW).a("\u2588").reset());
-                        break;
-
-                    case 3:
-                        result.append(Ansi.ansi().fg(Ansi.Color.GREEN).a("\u2588").reset());
-                        break;
-
-                }
-                switch (map[x][y].getHeight()) {
-
-                    case -2:
-                        result.append(Ansi.ansi().fg(Ansi.Color.BLUE).a("\u2588").reset());
-                        break;
-
-                    case -1:
-                        result.append(Ansi.ansi().fg(Ansi.Color.CYAN).a("\u2588").reset());
-                        break;
-
-                    case 0:
-                        result.append(Ansi.ansi().fg(Ansi.Color.YELLOW).a("\u2588").reset());
-                        break;
-
-                    case 1:
-                        result.append(Ansi.ansi().fg(Ansi.Color.GREEN).a("\u2588").reset());
-                        break;
-
-                    case 2:
-                        result.append(Ansi.ansi().fg(Ansi.Color.WHITE).a("\u2588").reset());
-                        break;
-                }
-            }
-            result.append(Ansi.ansi().bg(Ansi.Color.BLACK).a("\u2551\n").reset().toString());
-        }
-
-        // Bottom border
-        result.append(Ansi.ansi().bg(Ansi.Color.BLACK).a("\u255A").reset().toString());
-        for (int i=0; i<map.length; i++)
-            result.append(Ansi.ansi().bg(Ansi.Color.BLACK).a("\u2550\u2550").reset().toString());
-        result.append(Ansi.ansi().bg(Ansi.Color.BLACK).a("\u255D\n").reset().toString());
-
-        return result.toString();
+    public int getRandInt(int min, int max) {
+        return this.rand.nextInt(max - min) + min;
     }
 
     public int getYear() {
@@ -298,5 +154,9 @@ public class World {
 
     public ArrayList<Nation> getNations() {
         return nations;
+    }
+
+    public Province[][] getMap() {
+        return map;
     }
 }

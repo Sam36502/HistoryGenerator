@@ -12,26 +12,15 @@ import java.util.Random;
 public class Nation implements Comparable<Nation> {
 
     private static final String NATION_NAME = "nation"; // The word to translate to the name of this nation
-    private static final Ansi.Color[] AVAIL_COLOURS = {
-            Ansi.Color.RED,
-            Ansi.Color.YELLOW,
-            Ansi.Color.GREEN,
-            Ansi.Color.CYAN,
-            Ansi.Color.BLUE,
-            Ansi.Color.MAGENTA
-    };
 
     private Language language;
 
     private ArrayList<Province> land;
 
-    private Ansi.Color colour;
-
     public Nation(long seed) {
         Random r = new Random(seed);
 
         this.language = new Language(seed);
-        this.colour = AVAIL_COLOURS[r.nextInt(AVAIL_COLOURS.length)];
         this.land = new ArrayList<>();
     }
 
@@ -41,10 +30,6 @@ public class Nation implements Comparable<Nation> {
 
     public Language getLanguage() {
         return language;
-    }
-
-    public String getAnsiDisplay() {
-        return Ansi.ansi().fg(colour).a("\u2588\u2588").reset().toString();
     }
 
     public ArrayList<Province> getLand() {

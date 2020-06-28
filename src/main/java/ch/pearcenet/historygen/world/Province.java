@@ -83,9 +83,15 @@ public class Province {
     public int getFertility() { return this.fertility; }
 
     public Province setOwner(Nation owner) {
-        this.owner = owner;
-        this.name = this.owner.getLanguage().newWord();
-        this.owner.getLand().add(this);
+        if (owner == null) {
+            this.name = "Terra Nullius";
+            this.owner.getLand().remove(this);
+            this.owner = null;
+        } else {
+            this.owner = owner;
+            this.name = this.owner.getLanguage().newWord();
+            this.owner.getLand().add(this);
+        }
         return this;
     }
 
