@@ -6,6 +6,7 @@ import ch.pearcenet.historygen.world.World;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
 
+import javax.swing.*;
 import java.util.Collections;
 import java.util.Scanner;
 
@@ -44,6 +45,7 @@ public class Main {
 
             for (int i=0;i<5;i++) world.nextYear();
             System.out.println("\nThe year of our lord " + world.getYear() + "\nPolitical Map:");
+            SwingUtilities.updateComponentTreeUI(polMap);
         }
 
         System.out.println("\n\nNations ranked by size:\n------------------------");
